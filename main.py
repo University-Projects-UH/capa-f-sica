@@ -56,7 +56,7 @@ class MyProtocol():
 
         try:
             out = open('output/' + strings_line[3] + '.txt','w')
-        except: 
+        except:
             os.system('mkdir output')
             out = open('output/' + strings_line[3] + '.txt','w')
         out.close()
@@ -84,11 +84,8 @@ class MyProtocol():
         second_device = self.get_device(second_par)
         second_port = int(self.get_device_port_index(first_device.list_port_connected[first_port - 1]))
 
-        dev1 = self.get_device(self.name_dict[first_device])
-        dev1.list_port_connected[first_port - 1] = 'none'
-
-        dev2 = self.get_device(self.name_dict[second_device])
-        dev2.list_port_connected[second_port - 1] = 'none'
+        first_device.list_port_connected[first_port - 1] = 'none'
+        second_device.list_port_connected[second_port - 1] = 'none'
 
 
     def send_instruction(self, strings_line):
@@ -142,7 +139,7 @@ class MyProtocol():
             if(tmp1 != 'none'):
                 tmp2 = self.get_device_port_index(connect_device)
                 connect_device = self.get_device(self.name_dict[tmp1])
-                
+
                 if(connect_device.mk_info[tmp2] != tmp):
                     self.propagate(self.union_name_port(connect_device.name,tmp2 + 1),bit,'receive',time_act)
         elif(i_o == 'receive'):
