@@ -14,6 +14,28 @@ class MyProtocol():
     def read_file(self):
         return open(self.filename, 'r') #Read script.txt
 
+    def ignore_comments(self, line):
+        new_line = ''
+        for c in line:
+            if(c == '#'):
+                break;
+            new_line += c
+        return new_line
+
+    def my_split_by_spaces(self, line):
+        argum = ''
+        line_splited = []
+        for c in line:
+            if(c == ' '):
+                if(len(argum) > 0):
+                    line_splited.append(argum)
+                argum = ''
+                continue
+            argum += c
+        if(len(argum) > 0):
+            line_splited.append(argum)
+        return line_splited
+
     def get_device_name(self, port):
         name = ''
         for c in port:
@@ -93,10 +115,11 @@ class MyProtocol():
 
         self.send_list.append(strings_line[2:])
 
-    def parse_line(self, line, time_run):
+    def parse_line(self, line_, time_run):
+        line = self.ignore_comments(line_)
         if(len(line) == 0):
             return True
-        strings_line = line.split(' ')
+        strings_line = self.my_split_by_spaces(line)
         time = int(strings_line[0])  #time
 
         if(time_run < time):
