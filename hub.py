@@ -1,7 +1,6 @@
-class Hub:
+from dev_connected import Dev_connected
+
+class Hub(Dev_connected):
     def __init__(self, name, count_ports):
-        self.name = name;
-        self.count_ports = int(count_ports);
-        self.list_port_connected = []
-        for i in range(self.count_ports):
-            self.list_port_connected.append('none')
+
+        Dev_connected.__init__(self,name,count_ports)
