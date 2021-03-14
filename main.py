@@ -24,15 +24,15 @@ class MyProtocol():
         return name
 
     def get_device_port_index(self, port):
+        if not '_' in port:
+            return 0
+
         port_index = ''
         len_port = len(port)
         for i in range(len(port)):
             if(port[len_port - i - 1] == '_'):
                 break
             port_index += port[len_port - i - 1]
-
-        if(len(port_index)):
-            return 0
 
         return int(port_index[::-1])
 
@@ -136,8 +136,11 @@ class MyProtocol():
         if(i_o == 'send'):
             connect_device = device.list_port_connected[index]
             tmp1 = self.get_device_name(connect_device)
+
             if(tmp1 != 'none'):
                 tmp2 = self.get_device_port_index(connect_device)
+                if(tmp2 > 0):
+                    tmp2 -= 1
                 connect_device = self.get_device(self.name_dict[tmp1])
 
                 if(connect_device.mk_info[tmp2] != tmp):
