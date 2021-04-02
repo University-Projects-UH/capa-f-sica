@@ -62,7 +62,7 @@ class MyProtocol():
     def get_device(self, par):
         if(par[0] == 0): #is a host
             return self.host_list[par[1]]
-        elif(par[0] == 1)
+        elif(par[0] == 1):
             return self.hub_list[par[1]] #is a hub
         return self.switch_list[par[1]] #is a switch
 
@@ -122,6 +122,16 @@ class MyProtocol():
 
         self.send_list.append(strings_line[2:])
 
+    def mac_instruction(self, strings_line):
+        assert(len(strings_line) == 4), "Instruction mac not valid"
+
+        par = self.name_dict[self.get_device_name(strings_line[2])]
+        device = self.get_device(par)
+
+
+        device.mac = strings_line[3]
+
+
     def parse_line(self, line_, time_run):
         line = self.ignore_comments(line_)
         if(len(line) == 0):
@@ -142,6 +152,8 @@ class MyProtocol():
             self.disconnect_instruction(strings_line)
         elif(instruction == 'send'):
             self.send_instruction(strings_line)
+        elif(instruction == 'mac'):
+            self.mac_instruction(strings_line)
 
         return True
 

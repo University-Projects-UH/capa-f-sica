@@ -6,7 +6,7 @@ class Host(Dev_connected):
         Dev_connected.__init__(self,name)
 
         self.collision = 'ok'
-
+        self.mac = 'none'
         # self.name = name
         # self.list_port_connected = ['none']
         # self.read_info = ['null',-1]
