@@ -9,6 +9,7 @@ class MyProtocol():
         self.filename = filename
         self.host_list = []
         self.hub_list = []
+        self.switch_list = []
         self.name_dict = {}
 
     def read_file(self):
@@ -61,7 +62,9 @@ class MyProtocol():
     def get_device(self, par):
         if(par[0] == 0): #is a host
             return self.host_list[par[1]]
-        return self.hub_list[par[1]] #is a hub
+        elif(par[0] == 1)
+            return self.hub_list[par[1]] #is a hub
+        return self.switch_list[par[1]] #is a switch
 
     def create_instruction(self, strings_line): #create devices
         device = strings_line[2]
@@ -73,8 +76,12 @@ class MyProtocol():
             assert(len(strings_line) - 3 == 2), 'Hub should only have name and number of ports'
             self.name_dict[strings_line[-2]] = [1, len(self.hub_list)]
             self.hub_list.append(Hub(strings_line[-2], strings_line[-1]))
+        elif(device == 'switch'):
+            assert(len(strings_line) - 3 == 2), 'Switch should only have name and number of ports'
+            self.name_dict[strings_line[-2]] = [2, len(self.switch_list)]
+            self.switch_list.append(Switch(strings_line[-2], strings_line[-1]))
         else:
-            assert(device == 'host' or device == 'hub'), 'Unknown device'
+            assert False, 'Unknown device'
 
         try:
             out = open('output/' + strings_line[3] + '.txt','w')
