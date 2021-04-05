@@ -7,7 +7,8 @@ class Host(Dev_connected):
 
         self.collision = 'ok'
         self.mac = 'none'
-        # self.name = name
-        # self.list_port_connected = ['none']
-        # self.read_info = ['null',-1]
-        # self.mk_info = ['name',-1]
+        self.data = [""] # recive information
+        
+    def is_host(self):
+        return True
+
