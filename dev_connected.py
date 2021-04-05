@@ -8,7 +8,16 @@ class Dev_connected:
             self.list_port_connected.append('none')
         
         self.read_info = []
-        self.mk_info = []
+        self.read_mk_info = []
         for i in range(self.count_ports):
             self.read_info.append(['time',self.name + '_' + str(i + 1),'recive','null'])
-            self.mk_info = ['name',-1]
+            self.read_mk_info.append(['name',-1])
+
+        self.send_info = []
+        self.send_mk_info = []
+        for i in range(self.count_ports):
+            self.send_info.append(['time',self.name + '_' + str(i + 1),'send','null'])
+            self.send_mk_info.append(['name',-1])
+
+    def is_host(self):
+        return False

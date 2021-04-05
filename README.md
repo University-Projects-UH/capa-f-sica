@@ -1,5 +1,11 @@
 # Capa Física
  
+Integrantes:
+Karel Diaz Vergara
+Alben Luis Urquiza Rojas
+
+Para hacer funcionar el programa solo es necesario, introducir la entrada correspondiente en el archivo 'script.txt' y ejectuar el programa usando el comando '**python3 main.py**'.
+
 **MyProtocol** es una clase que su constructor recibe como párametro el nombre de un fichero en el directorio del proyecto, por ejemplo ``` script.txt ```
 
 A continución se muetran las posibles instrucciones que puede tener ```script.txt```.

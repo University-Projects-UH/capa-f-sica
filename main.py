@@ -1,8 +1,11 @@
 from host import Host
 from hub import Hub
+from frame import Frame
+from tools import Tools
+from switch import Switch
 import os
 
-SIGNAL_TIME = 10
+SIGNAL_TIME = 1
 
 class MyProtocol():
     def __init__(self, filename):
@@ -19,7 +22,7 @@ class MyProtocol():
         new_line = ''
         for c in line:
             if(c == '#'):
-                break;
+                break
             new_line += c
         return new_line
 
@@ -116,11 +119,7 @@ class MyProtocol():
         first_device.list_port_connected[first_port - 1] = 'none'
         second_device.list_port_connected[second_port - 1] = 'none'
 
-
-    def send_instruction(self, strings_line):
-        assert(len(strings_line) == 4), "Instruction send not valid"
-
-        self.send_list.append(strings_line[2:])
+        
 
     def mac_instruction(self, strings_line):
         assert(len(strings_line) == 4), "Instruction mac not valid"
@@ -128,9 +127,37 @@ class MyProtocol():
         par = self.name_dict[self.get_device_name(strings_line[2])]
         device = self.get_device(par)
 
-
         device.mac = strings_line[3]
 
+    def send_frame_instruction(self, strings_line):
+        #strings_line: host_name, mac_target, data
+        host_name = strings_line[-3]
+        mac_target = strings_line[-2]
+        data = strings_line[-1]
+
+        mac_host = self.name_dict[self.get_device_name(host_name)]
+        mac_host = self.get_device(mac_host)
+        mac_host = mac_host.mac
+
+        new_frame = Frame(mac_target, mac_host, data)
+
+        self.send_list.append([host_name,new_frame])
+
+    def send_instruction(self, strings_line):
+        assert(len(strings_line) == 4), "Instruction send not valid"
+
+        #send address(all host)
+        mac = 'FFFF'
+
+        #convert binary to hexadecimal
+        data_hex = hex(int('0b' + strings_line[-1],2))
+
+        #pop back
+        strings_line.pop()
+
+        strings_line += [mac,data_hex]
+
+        self.send_frame_instruction(strings_line)
 
     def parse_line(self, line_, time_run):
         line = self.ignore_comments(line_)
@@ -154,13 +181,15 @@ class MyProtocol():
             self.send_instruction(strings_line)
         elif(instruction == 'mac'):
             self.mac_instruction(strings_line)
+        elif(instruction == 'send_frame'):
+            self.send_frame_instruction(strings_line)
 
         return True
 
     def union_name_port(self,name,port):
         return name + '_' + str(port)
 
-    def propagate(self,send_name,bit,i_o,time_act):
+    def propagate(self,send_name,bit,i_o,time_act,end_frame):
         name = self.get_device_name(send_name)
         index = self.get_device_port_index(send_name)
         if(index > 0):
@@ -172,10 +201,11 @@ class MyProtocol():
 
         port = self.union_name_port(name,str(index + 1))
 
-        device.read_info[index] = [time_act,port,i_o,bit]
-        device.mk_info[index] = tmp
-
         if(i_o == 'send'):
+            #mark 
+            device.send_info[index] = [time_act,port,i_o,bit]
+            device.send_mk_info[index] = tmp
+
             connect_device = device.list_port_connected[index]
             tmp1 = self.get_device_name(connect_device)
 
@@ -185,24 +215,45 @@ class MyProtocol():
                     tmp2 -= 1
                 connect_device = self.get_device(self.name_dict[tmp1])
 
-                if(connect_device.mk_info[tmp2] != tmp):
-                    self.propagate(self.union_name_port(connect_device.name,tmp2 + 1),bit,'receive',time_act)
+                if(connect_device.read_mk_info[tmp2] != tmp):
+                    if(connect_device.read_mk_info[tmp2][1] == time_act):
+                        return False
+                    if self.propagate(self.union_name_port(connect_device.name,tmp2 + 1),bit,'receive',time_act,end_frame) == False:
+                        return False
         elif(i_o == 'receive'):
+            #mark 
+            device.read_info[index] = [time_act,port,i_o,bit]
+            device.read_mk_info[index] = tmp
+
             for i in range(device.count_ports):
-                if(i != index and tmp != device.mk_info[i]):
-                    self.propagate(self.union_name_port(device.name,i + 1),bit,'send',time_act)
+                if(i != index and tmp != device.send_mk_info[i]):
+                    if(device.send_mk_info[i][1] == time_act):
+                        return False
+
+                    if self.propagate(self.union_name_port(device.name,i + 1),bit,'send',time_act,end_frame) == False:
+                        return False
+
+        #write information
+        if(device.is_host()):
+            device.data[-1] += bit
+            if(end_frame):
+                data_tmp = device.data[-1]
+                device.data[-1] = [time_act,data_tmp[16:31],data_tmp]
+                device.data.append('')
+        return True
 
     def execute(self):
         script_file = self.read_file()
         lines_array = script_file.read().split('\n')
 
-        send_position = 0
-        send_time = 0
+        send_position = [0]
+        send_time = [0]
         self.send_list = []
         time_act = 0
         read_position = 0
 
         while True:
+            #EOF read file and End send list
             if (read_position >= len(lines_array) and len(self.send_list) == 0):
                 break
 
@@ -214,19 +265,35 @@ class MyProtocol():
 
                 read_position += 1
 
-            if(len(self.send_list) > 0):
-                if(send_time == SIGNAL_TIME):
-                    send_position += 1
-                    send_time = 0
+            wait_for_remove = []
 
-                if(send_position == len(self.send_list[0][1])):
-                    self.send_list = self.send_list[1:]
-                    send_position = 0
-                    continue
+            for i in range(len(self.send_list)):
+                if(len(send_position) == i):
+                    send_position.append(0)
+                    send_time.append(0)
 
-                self.propagate(self.send_list[0][0],self.send_list[0][1][send_position],'send',time_act)
+                #propagate information to the network
+                send_name = self.send_list[i][0]
+                bit = self.send_list[i][1].frame[send_position[i]]
+                end_frame = send_position[i] + 1 == len(self.send_list[i][1].frame)
+                if(self.propagate(send_name,bit,'send',time_act,end_frame) == False):
+                    break
 
-                send_time += 1
+                # self.propagate(self.send_list[0][0],self.send_list[0][1][send_position],'send',time_act)
+
+                send_time[i] += 1
+
+                if(send_time[i] == SIGNAL_TIME):
+                    send_position[i] += 1
+                    send_time[i] = 0
+
+                if(send_position[i] >= len(self.send_list[i][1].frame)):
+                    wait_for_remove.append(i)
+
+            for i in wait_for_remove:
+                self.send_list.pop(i)
+                send_position.pop(i)
+                send_time.pop(i)
 
             #files output
             for dev in self.host_list:
@@ -235,6 +302,14 @@ class MyProtocol():
                 for i in dev.read_info:
                     if(i[0] == 'time' or i[0] < time_act):
                         out.write(str(time_act) + " " + i[1] + ' receive null ')
+                    else:
+                        for j in i:
+                            out.write(str(j) + " ")
+                    out.write('ok\n')
+
+                for i in dev.send_info:
+                    if(i[0] == 'time' or i[0] < time_act):
+                        out.write(str(time_act) + " " + i[1] + ' send null ')
                     else:
                         for j in i:
                             out.write(str(j) + " ")
@@ -251,7 +326,42 @@ class MyProtocol():
                             out.write(str(j) + " ")
                     out.write("\n")
 
+                for i in dev.send_info:
+                    if(i[0] == 'time' or i[0] < time_act):
+                        out.write(str(time_act) + " " + i[1] + ' sends null ')
+                    else:
+                        for j in i:
+                            out.write(str(j) + " ")
+                    out.write("\n")
+
+            for dev in self.switch_list:
+                out = open('output/' + dev.name + '.txt','a')
+
+                for i in dev.read_info:
+                    if(i[0] == 'time' or i[0] < time_act):
+                        out.write(str(time_act) + " " + i[1] + ' receive null ')
+                    else:
+                        for j in i:
+                            out.write(str(j) + " ")
+                    out.write("\n")
+
+                for i in dev.send_info:
+                    if(i[0] == 'time' or i[0] < time_act):
+                        out.write(str(time_act) + " " + i[1] + ' send null ')
+                    else:
+                        for j in i:
+                            out.write(str(j) + " ")
+                    out.write("\n")
+
             time_act += 1
 
+        #output data_hosts
+        for dev in self.host_list:
+            out = open('output/' + dev.name + '_data.txt','w')
+
+            for i in dev.data:
+                out.write(str(i) + " ")
+            out.write("\n")
+        
 protol = MyProtocol('script.txt')
 protol.execute()
