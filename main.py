@@ -14,9 +14,8 @@ class MyProtocol():
         self.hub_list = []
         self.switch_list = []
         self.name_dict = {}
-
-    def read_file(self):
-        return open(self.filename, 'r') #Read script.txt
+        ###
+        self.dic = {'pc' : '', 'pc2' : ''}
 
     def ignore_comments(self, line):
         new_line = ''
@@ -197,6 +196,7 @@ class MyProtocol():
 
         device = self.get_device(self.name_dict[name])
 
+#errrrrrrooooooooooorrrr
         tmp = [self.send_list[0][0],time_act]
 
         port = self.union_name_port(name,str(index + 1))
@@ -233,18 +233,21 @@ class MyProtocol():
                     if self.propagate(self.union_name_port(device.name,i + 1),bit,'send',time_act,end_frame) == False:
                         return False
 
-        #write information
-        if(device.is_host()):
-            device.data[-1] += bit
-            if(end_frame):
-                data_tmp = device.data[-1]
-                device.data[-1] = [time_act,data_tmp[16:31],data_tmp]
-                device.data.append('')
+            #write information
+            if(device.is_host()):
+                device.data[-1] += bit
+                # self.dic[device.name] += bit
+                if(end_frame):
+                    data_tmp = device.data[-1]
+                    device.data[-1] = [time_act,data_tmp[16:32],data_tmp]
+                    device.data.append('')
+
+
         return True
 
     def execute(self):
-        script_file = self.read_file()
-        lines_array = script_file.read().split('\n')
+        script_file = open(self.filename, 'r') # Read script.txt
+        lines_array = script_file.read().split('\n') # Separate per lines
 
         send_position = [0]
         send_time = [0]
@@ -276,10 +279,11 @@ class MyProtocol():
                 send_name = self.send_list[i][0]
                 bit = self.send_list[i][1].frame[send_position[i]]
                 end_frame = send_position[i] + 1 == len(self.send_list[i][1].frame)
+                # self.dic[send_name] += bit
+                # if(end_frame):
+                #     print(time_act, self.dic[send_name])
                 if(self.propagate(send_name,bit,'send',time_act,end_frame) == False):
                     break
-
-                # self.propagate(self.send_list[0][0],self.send_list[0][1][send_position],'send',time_act)
 
                 send_time[i] += 1
 
@@ -290,6 +294,7 @@ class MyProtocol():
                 if(send_position[i] >= len(self.send_list[i][1].frame)):
                     wait_for_remove.append(i)
 
+### errrrrrrrrooooooooorrrrrrrr
             for i in wait_for_remove:
                 self.send_list.pop(i)
                 send_position.pop(i)
@@ -362,6 +367,9 @@ class MyProtocol():
             for i in dev.data:
                 out.write(str(i) + " ")
             out.write("\n")
-        
+
+        for i in self.dic:
+            print(i,self.dic[i])
+
 protol = MyProtocol('script.txt')
 protol.execute()
