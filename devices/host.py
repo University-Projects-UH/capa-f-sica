@@ -1,6 +1,8 @@
 from devices.dev_connected import Dev_connected
 from frame import Frame
 from tools import Tools
+from ip_attribute import IP
+from mac_attribute import Mac
 
 class Host(Dev_connected):
     def __init__(self, info):
@@ -11,9 +13,12 @@ class Host(Dev_connected):
 
         self.send_collision = 'ok'
         self.receive_collision = 'ok'
-        self.mac = 'none'
+        
         self.data = [Frame.empty_frame()] # receive information
         self.verify_info = ''
+
+        self.mac = [Mac()] * self.count_ports
+        self.ip = [IP()] * self.count_ports
 
         out = open('output/' + self.name + '_data.txt','w')
 

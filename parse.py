@@ -6,6 +6,7 @@ from instructions.disconnect import Disconnect
 from instructions.mac import Mac
 from instructions.send import Send
 from instructions.send_frame import SendFrame
+import instructions
 
 class Parse:
 
@@ -32,18 +33,16 @@ class Parse:
             inst = Disconnect(strings_line)
         elif(instruction == 'mac'):
             inst = Mac(strings_line)
-    
-        # do something
         elif(instruction == 'send'):
             inst = Send(strings_line)
         elif(instruction == 'send_frame'):
             inst = SendFrame(strings_line)
+        elif(instruction == 'ip'):
+            inst = instructions.ip.IP(strings_line)
+        elif(instruction == 'send_packet'):
+            inst = instructions.send_packet.SendPacket(strings_line)
 
         return inst
-
-        # inst.execute()
-
-        # return True
 
     def ignore_comments(self, line):
         new_line = ''
