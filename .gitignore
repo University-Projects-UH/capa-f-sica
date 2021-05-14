@@ -5,3 +5,4 @@ test.py
 __pycache__
 instructions/__pycache__
 devices/__pycache__
+layer_network/__pycache__

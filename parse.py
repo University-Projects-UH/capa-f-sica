@@ -6,7 +6,8 @@ from instructions.disconnect import Disconnect
 from instructions.mac import Mac
 from instructions.send import Send
 from instructions.send_frame import SendFrame
-import instructions
+from instructions.ip import IP
+from instructions.send_packet import SendPacket
 
 class Parse:
 
@@ -38,9 +39,9 @@ class Parse:
         elif(instruction == 'send_frame'):
             inst = SendFrame(strings_line)
         elif(instruction == 'ip'):
-            inst = instructions.ip.IP(strings_line)
+            inst = IP(strings_line)
         elif(instruction == 'send_packet'):
-            inst = instructions.send_packet.SendPacket(strings_line)
+            inst = SendPacket(strings_line)
 
         return inst
 

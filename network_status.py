@@ -4,7 +4,7 @@ from tools import Tools
 from devices.host import Host
 
 class Status:
-    def __init__(self, signal_time = 10):
+    def __init__(self, signal_time):
         self.signal_time = signal_time
         self.signal_count = 0
 
@@ -15,6 +15,8 @@ class Status:
         self.send_pos_frame = []    # sending position
 
         self.send_wait = []         # waiting frame to send
+
+        self.ip_mac = {}            # diccionary ...
 
     def get_device(self, name):
         ind = self.name_index[name]

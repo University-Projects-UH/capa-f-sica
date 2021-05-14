@@ -11,12 +11,14 @@ class Frame():
         self.mac_target = Tools.complete_str_with_char(16,Tools.hex_to_bin(_mac_target),'0')
         self.mac_host = Tools.complete_str_with_char(16,Tools.hex_to_bin(_mac_host),'0')
 
+        self.data_size = Tools.complete_str_with_char(8,bin(len(_data) * 4)[2:],'0')
+
         if(_data != ''): # data not empty
             self.data = Tools.hex_to_bin(_data)
         else:
             self.data = ''
 
-        self.data_size = Tools.complete_str_with_char(8,self.data,'0')
+        self.data = Tools.complete_str_with_char(int(self.data_size,2),self.data,'0')
 
         self.verif_size_bin = Tools.complete_str_with_char(8,bin(self.verif_size)[2:],'0')
         

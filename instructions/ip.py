@@ -1,6 +1,7 @@
 from instructions.instruction import Instruction
 from network_status import Status
 from devices.host import Host
+import ip_attribute
 
 class IP(Instruction):
     def __init__(self, input):
@@ -9,7 +10,10 @@ class IP(Instruction):
         Instruction.__init__(self,input)
 
         self.host_name = input[self.start].split(':')
-        self.interface = self.host_name[1]
+        if(len(self.host_name) > 1):
+            self.interface = int(self.host_name[1])
+        else:
+            self.interface = 1
         self.host_name = self.host_name[0]
 
         self.ip_address = input[self.start + 1]
@@ -21,5 +25,8 @@ class IP(Instruction):
         device = net_stat.name_index[self.host_name]
         device = net_stat.devices_connect[device]
 
-        device.ip[self.interface - 1].modificate_ip(self.ip_address)
-        device.ip[self.interface - 1].modificate_mask(self.ip_address)
+        device.ip[self.interface - 1].modificate_ip(ip_attribute.IP.ip_normalize(self.ip_address))
+        device.ip[self.interface - 1].modificate_mask(ip_attribute.IP.ip_normalize(self.mask))
+
+        ####
+        net_stat.ip_mac[self.ip_address] = device

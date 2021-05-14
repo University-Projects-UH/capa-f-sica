@@ -11,7 +11,7 @@ class Mac(Instruction):
         self.host_name = input[self.start].split(':')
 
         if(len(self.host_name) > 1):
-            self.interface = self.host_name[1]
+            self.interface = int(self.host_name[1])
         else:
             self.interface = 1
         
