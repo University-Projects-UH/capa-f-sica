@@ -4,7 +4,7 @@ import os
 
 protol = MyProtocol('script.txt')
 
-status_actual = ExecStatus(signal_time=2)
+status_actual = ExecStatus(signal_time=10)
 
 # exectue complete
 while protol.step(status_actual):

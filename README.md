@@ -1,12 +1,10 @@
-# Capa Física
+# Capa de Redes (parte 1)
  
 Integrantes:
 Karel Diaz Vergara
 Alben Luis Urquiza Rojas
 
 Para hacer funcionar el programa solo es necesario, introducir la entrada correspondiente en el archivo 'script.txt' y ejectuar el programa usando el comando '**python3 main.py**'.
-
-**MyProtocol** es una clase que su constructor recibe como párametro el nombre de un fichero en el directorio del proyecto, por ejemplo ``` script.txt ```
 
 A continución se muetran las posibles instrucciones que puede tener ```script.txt```.
 
@@ -33,4 +31,17 @@ A continución se muetran las posibles instrucciones que puede tener ```script.t
 ◦ con este comando se desconeta un cable de uno de los puertos
 ◦ puede ser en medio de una transmisión
 ◦ ejemplo: 20 disconnect pc_1
+
+<time> create switch <name> <number-of-ports>
+
+<time> mac <host-name> <mac-address>
+
+<time> send_frame <host-name> <mac-addreess> <data>
+
+<time> mac <host-name>[:<interface>] <mac-address>
+
+<time> ip <host-name>[:<interface>] <ip-address> <mask>
+
+<time> send_packet <host-name> <ip-address> <data>
+
 ```
