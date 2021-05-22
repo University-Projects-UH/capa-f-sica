@@ -8,7 +8,7 @@ from ip_attribute import IP
 from layer_network.ip_packet import IpPacket
 
 class SendPacket(Instruction):
-    def __init__(self, input):
+    def __init__(self, input, protocol = '00'):
         """Init send packet instruction information"""
 
         Instruction.__init__(self,input)
@@ -16,6 +16,7 @@ class SendPacket(Instruction):
         self.host_name = input[self.start]
         self.ip_target = input[self.start + 1]
         self.data = input[self.start + 2]
+        self.protocol = protocol
 
         assert(len(input) == 5), "Instruction send packet not valid"
 
@@ -60,7 +61,7 @@ class SendPacket(Instruction):
         ip_source = IP.ip_normalize_hex(ip_source)
         ip_source = Tools.complete_str_with_char(8,ip_source,'0')
 
-        data3 = IpPacket(ip_targ,ip_source,self.data)
+        data3 = IpPacket(ip_targ,ip_source,self.data,protocol=self.protocol)
 
         third_frame = Frame(mac_target2,mac_source,data3.packet)
  

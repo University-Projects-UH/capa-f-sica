@@ -8,6 +8,10 @@ class IP():
     def show_ip(self):
         return self._convert(self.ip)
     
+    def get_ip_bin(self):
+        """Retorna ip en formato binario '11110000111...' """
+        return self.ip
+    
     def modificate_ip(self, new_ip):
         self._validate(new_ip)
 

@@ -46,3 +46,16 @@ class Tools():
     def union_name_port(self,name,port):
         return name + '_' + str(port)
 
+    @classmethod
+    def and_strings(self, cad1, cad2, length):
+        c1 = Tools.complete_str_with_char(length,cad1,'0')
+        c2 = Tools.complete_str_with_char(length,cad2,'0')
+
+        r = ""
+        for i in range(len):
+            if(c1[i] == c2[i]):
+                r += c1[i]
+            else:
+                r += '0'
+
+        return r

@@ -4,23 +4,24 @@ from tools import Tools
 from ip_attribute import IP
 from mac_attribute import Mac
 from layer_network.frame_special import FrameSpecial
+from devices.dev_route_table import DevRouteTable
+
 from layer_network.ip_packet import IpPacket
 
-class Host(Dev_connected):
+class Host(Dev_connected, DevRouteTable):
     def __init__(self, info):
 
         name = info[0]
 
         Dev_connected.__init__(self,name)
 
+        DevRouteTable.__init__(self,self.count_ports)
+
         self.send_collision = 'ok'
         self.receive_collision = 'ok'
         
         self.data = [Frame.empty_frame()] # receive information
         self.verify_info = ''
-
-        self.mac = [Mac()] * self.count_ports
-        self.ip = [IP()] * self.count_ports
 
         open('output/' + self.name + '_data.txt','w')
 
@@ -92,8 +93,13 @@ class Host(Dev_connected):
 
             ip_packet_out = IpPacket.str_to_ip_packet(frame_data)
 
-            self.out_payload.write(str(time) + " " + ip_packet_out.get_ip_source_bin() + " " + ip_packet_out.get_data_bin() + "\n")
+            self.out_payload.write(str(time) + " " + ip_packet_out.get_ip_source_bin() + " " + ip_packet_out.get_data_bin())
 
+            if(ip_packet_out.get_data_bin() == '8'):
+                self.out_payload.write(' echo request')
+            self.out_payload.write('\n')
+
+        self.payload = False
         self.data.pop(0)
             
     def verify_data(self):

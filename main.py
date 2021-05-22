@@ -15,6 +15,5 @@ while protol.step(status_actual):
 # for i in range(0,x):
 #     protol.step(status_actual)
 
-
-# ### test
-# import asserts
+### test
+import asserts

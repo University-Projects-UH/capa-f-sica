@@ -2,6 +2,7 @@ from instructions.instruction import Instruction
 from devices.host import Host
 from devices.hub import Hub
 from devices.switch import Switch
+from devices.router import Router
 from network_status import Status
 import os
 
@@ -23,9 +24,10 @@ class Create(Instruction):
             new_device = Hub(self.device_info)
         elif(self.device == 'switch'):
             new_device = Switch(self.device_info)
+        elif(self.device == 'router'):
+            new_device = Router(self.device_info)
         else:
             assert False, 'Unknown device'
 
         net_stat.name_index[new_device.name] = len(net_stat.devices_connect) # quantity devices connected on network
         net_stat.devices_connect.append(new_device) # add new device on network
-

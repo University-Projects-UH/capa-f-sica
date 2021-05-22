@@ -8,6 +8,11 @@ from instructions.send import Send
 from instructions.send_frame import SendFrame
 from instructions.ip import IP
 from instructions.send_packet import SendPacket
+from instructions.route_add import RouteAdd
+from instructions.route_delete import RouteDelete
+from instructions.route_reset import RouteReset
+
+from instructions.ping import Ping
 
 class Parse:
 
@@ -42,6 +47,16 @@ class Parse:
             inst = IP(strings_line)
         elif(instruction == 'send_packet'):
             inst = SendPacket(strings_line)
+        elif(instruction == 'route'):
+            instruction2 = strings_line[2]
+            if(instruction2 == 'add'):
+                inst = RouteAdd(strings_line)
+            elif(instruction2 == 'delete'):
+                inst = RouteDelete(strings_line)
+            elif(instruction2 == 'reset'):
+                inst = RouteReset(strings_line)
+        elif(instruction == 'ping'):
+            inst = Ping(strings_line)
 
         return inst
 

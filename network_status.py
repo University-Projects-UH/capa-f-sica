@@ -73,6 +73,8 @@ class Status:
                 self.send_pos_frame.pop(send_pos)
 
             self.signal_count = 0
+
+        return True
         
     def output(self, time):
         for dev in self.devices_connect:

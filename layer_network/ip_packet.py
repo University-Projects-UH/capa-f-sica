@@ -27,7 +27,7 @@ class IpPacket():
 
     @classmethod
     def str_to_ip_packet(self, _str):
-        new_ip_packet = IpPacket('0000','0000','')
+        new_ip_packet = IpPacket('00000000','00000000','')
 
         new_ip_packet.packet = _str
 
